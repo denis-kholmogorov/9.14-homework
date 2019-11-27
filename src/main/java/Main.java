@@ -1,31 +1,35 @@
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.TreeMap;
 
 public class Main {
     public static void main(String[] args) {
 
         String station;
-        String numberStation;
-        TreeMap<String,String> stations = new TreeMap<>();
+        Double numberStation;
+        String nameLine;
+        TreeMap<String,Double> stations = new TreeMap<>();
 
         int maxBodySize = 20480000;
         String urlSite = "https://ru.wikipedia.org/wiki/Список_станций_Московского_метрополитена";
-        try {
+        try
+        {
             Document doc = Jsoup.connect(urlSite).maxBodySize(maxBodySize).get();
             Elements elements = doc.select(".standard td[data-sort-value~=\\d+][style~=background.+]");
-           // Elements elements = elements1.select("[]");
             System.out.println(elements.size());
-            for(Element element: elements){
-                numberStation = element.selectFirst("span").text();
-                station = element.nextElementSibling().text();
-                System.out.println(numberStation +"     " + station);
 
+            for(Element element: elements)
+            {
+                nameLine = element.select("span[title~=.+]").attr("title");
+                numberStation = Double.parseDouble(element.attr("data-sort-value"));
+                station = element.nextElementSibling().text();
+
+                System.out.println(numberStation + "  " + station + " " + nameLine);
                 stations.put(station, numberStation);
             }
 
@@ -35,4 +39,5 @@ public class Main {
         }
         System.out.println("Процесс завершен");
     }
+
 }

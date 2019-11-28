@@ -8,24 +8,34 @@ import org.jsoup.select.Elements;
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        JSONObject stationsObj;
-        JSONArray lineStationsArray;
+        JSONObject stationsObj = new JSONObject();
+        JSONArray lineStationsArray = new JSONArray();
         JSONObject metropoliten = new JSONObject();
 
         int maxBodySize = 20480000;
         String urlSite = "https://ru.wikipedia.org/wiki/Список_станций_Московского_метрополитена";
         try {
             Document doc = Jsoup.connect(urlSite).maxBodySize(maxBodySize).get();
-            Elements elements = doc.select(".standard td[data-sort-value~=\\w+][style~=background.+]");
-            //System.out.println(elements.size());
+            //Elements elements = doc.select("td[data-sort-value~=\\w+][style~=background.+]");
+            Elements elements = doc.select(".standard span[title~=[а-яА-Я]+ линия$]");  //td[data-sort-value~=\w+]
+            /*for(Element element: elements1){
+                System.out.println(element.parent().nextElementSibling().text());
+
+            }*/
             stationsObj = createStationsJSON(elements);
             lineStationsArray = createLineStationsJSON(elements);
+
+            //System.out.println(elements.size());
+
+
 
             metropoliten.put("stations", stationsObj);
             metropoliten.put("lines", lineStationsArray);
@@ -52,9 +62,10 @@ public class Main {
         String numberLineStation;
 
         for (Element element : elements) {
-            numberLineStation = element.selectFirst(".sortkey").text();                         //numberLineStation = Double.parseDouble(element.attr("data-sort-value"));
-            stationName = element.nextElementSibling().text();                                  //System.out.println(numberLineStation + "  " + stationName + " " + nameLine);
-
+            numberLineStation = element.parent().selectFirst(".sortkey").text();                       //numberLineStation = element.selectFirst(".sortkey").text(); можно использовать для пересадок
+            //numberLineStation = Double.parseDouble(element.attr("data-sort-value"));        // stationName = element.nextElementSibling().text();
+            stationName = element.parent().nextElementSibling().text();                                  //System.out.println(numberLineStation + "  " + stationName + " " + nameLine);
+            System.out.println(numberLineStation + " " + stationName);
             if (lineArray.equals("")) {
                 lineArray = numberLineStation;
             } else if (!lineArray.equals(numberLineStation)) {
@@ -82,11 +93,11 @@ public class Main {
 
 
         for (Element element : elements) {
-            nameLine = element.select("span[title~=.+]").attr("title");
-            numberLineStations = element.selectFirst(".sortkey").text();
-            colorLine = element.selectFirst("td").attr("style");
+            nameLine = element.parent().select("span[title~=.+]").attr("title");
+            numberLineStations = element.parent().selectFirst(".sortkey").text();
+            colorLine = element.parent().selectFirst("td").attr("style");
             colorLine = colorLine.substring(colorLine.indexOf(":") + 1);
-
+            System.out.println(nameLine + " " + numberLineStations + " " + colorLine);
 
             if(!startNumberLine.equals(numberLineStations)){
                 lineNumberNameColor.put("name", nameLine);

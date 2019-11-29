@@ -16,8 +16,8 @@ public class Main {
 
     public static void main(String[] args) {
 
-        JSONObject stationsObj = new JSONObject();
-        JSONArray lineStationsArray = new JSONArray();
+        JSONObject stationsObj;
+        JSONArray lineStationsArray;
         JSONObject metropoliten = new JSONObject();
         String path = "stations.json";
 
@@ -54,30 +54,44 @@ public class Main {
     public static JSONObject createStationsJSON(Elements elements) {
 
         JSONObject stationsObj = new JSONObject();
-        JSONArray StationsArrayOneLine = new JSONArray();
-        String lineArray = "";
         String stationName;
         String numberLineStation;
+        String lineArray ="";
+        JSONArray stationsArrayOneLine;
 
         for (Element element : elements) {
             numberLineStation = element.previousElementSibling().selectFirst(".sortkey").text();                       //numberLineStation = element.selectFirst(".sortkey").text(); можно использовать для пересадок
             //numberLineStation = Double.parseDouble(element.attr("data-sort-value"));        // stationName = element.nextElementSibling().text();
             stationName = element.parent().nextElementSibling().text();                                  //System.out.println(numberLineStation + "  " + stationName + " " + nameLine);
-            System.out.println(numberLineStation + " " + stationName);
-            if (lineArray.equals("")) {
+
+            if(stationsObj.containsKey(numberLineStation)){
+                stationsArrayOneLine = (JSONArray) stationsObj.get(numberLineStation);
+                stationsArrayOneLine.add(stationName);
+            }
+            else{
+                stationsArrayOneLine = new JSONArray();
+                stationsArrayOneLine.add(stationName);
+                stationsObj.put(numberLineStation,stationsArrayOneLine);
+            }
+
+
+           /* if (lineArray.equals(""))
+            {
                 lineArray = numberLineStation;
+
             }
             else if (!lineArray.equals(numberLineStation))
             {
-                stationsObj.put(lineArray, StationsArrayOneLine);
+                System.out.println(numberLineStation + " " + stationName);
+                stationsObj.put(lineArray, stationsArrayOneLine);
                 lineArray = numberLineStation;
-                StationsArrayOneLine = new JSONArray();
+                stationsArrayOneLine = new JSONArray();
             } else if (lineArray.equals(numberLineStation))
             {
                 lineArray = numberLineStation;
-            }
+            }*/
 
-            StationsArrayOneLine.add(stationName);
+
         }
 
         return stationsObj;
@@ -97,7 +111,6 @@ public class Main {
             numberLineStations = element.previousElementSibling().selectFirst(".sortkey").text();
             colorLine = element.parent().selectFirst("td").attr("style");
             colorLine = colorLine.substring(colorLine.indexOf(":") + 1);
-            System.out.println(nameLine + " " + numberLineStations + " " + colorLine);
 
             if(!set.contains(nameLine)){
                 lineNumberNameColor.put("name", nameLine);
@@ -134,7 +147,7 @@ public class Main {
             ex.printStackTrace();
         }
         stationAndLines.keySet().forEach(number ->{
-            System.out.println("На " + number + " линии " + stationAndLines.get(number) + "станций");
+            System.out.println("На " + number + " линии " + stationAndLines.get(number) + " станций");
         });
     }
 

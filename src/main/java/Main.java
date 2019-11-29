@@ -20,13 +20,13 @@ public class Main {
         JSONArray lineStationsArray;
         JSONObject metropoliten = new JSONObject();
         String path = "stations.json";
+        HashMap<String, Integer> stationAndLines;
 
         int maxBodySize = 20480000;
         String urlSite = "https://ru.wikipedia.org/wiki/Список_станций_Московского_метрополитена";
         try {
             Document doc = Jsoup.connect(urlSite).maxBodySize(maxBodySize).get();
-            //Elements elements = doc.select("td[data-sort-value~=\\w+][style~=background.+]");
-            Elements elements = doc.select(".standard span[title~=[а-яА-Я]+ линия$]");  //td[data-sort-value~=\w+]
+            Elements elements = doc.select(".standard span[title~=[а-яА-Я]+ линия$]");                          //td[data-sort-value~=\w+] Elements elements = doc.select("td[data-sort-value~=\\w+][style~=background.+]");
 
             stationsObj = createStationsJSON(elements);
             lineStationsArray = createLineStationsJSON(elements);
@@ -41,59 +41,35 @@ public class Main {
             file.close();
 
             String fileStationsJson = getJsonFile(path);
-            readJsonFile(fileStationsJson);
+            stationAndLines = readJsonFile(fileStationsJson);
+            printCountStation(stationAndLines, lineStationsArray);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        System.out.println("Процесс завершен");
-
     }
-
     public static JSONObject createStationsJSON(Elements elements) {
 
         JSONObject stationsObj = new JSONObject();
         String stationName;
         String numberLineStation;
-        String lineArray ="";
         JSONArray stationsArrayOneLine;
 
         for (Element element : elements) {
-            numberLineStation = element.previousElementSibling().selectFirst(".sortkey").text();                       //numberLineStation = element.selectFirst(".sortkey").text(); можно использовать для пересадок
-            //numberLineStation = Double.parseDouble(element.attr("data-sort-value"));        // stationName = element.nextElementSibling().text();
-            stationName = element.parent().nextElementSibling().text();                                  //System.out.println(numberLineStation + "  " + stationName + " " + nameLine);
+            numberLineStation = element.previousElementSibling().selectFirst(".sortkey").text();                        //numberLineStation = element.selectFirst(".sortkey").text(); можно использовать для пересадок
+            stationName = element.parent().nextElementSibling().text();                                                 //System.out.println(numberLineStation + "  " + stationName + " " + nameLine);
 
             if(stationsObj.containsKey(numberLineStation)){
-                stationsArrayOneLine = (JSONArray) stationsObj.get(numberLineStation);
-                stationsArrayOneLine.add(stationName);
+                stationsArrayOneLine = (JSONArray) stationsObj.get(numberLineStation);                                  //numberLineStation = Double.parseDouble(element.attr("data-sort-value"));
+                stationsArrayOneLine.add(stationName);                                                                  // stationName = element.nextElementSibling().text();
             }
-            else{
+            else
+            {
                 stationsArrayOneLine = new JSONArray();
                 stationsArrayOneLine.add(stationName);
                 stationsObj.put(numberLineStation,stationsArrayOneLine);
             }
-
-
-           /* if (lineArray.equals(""))
-            {
-                lineArray = numberLineStation;
-
-            }
-            else if (!lineArray.equals(numberLineStation))
-            {
-                System.out.println(numberLineStation + " " + stationName);
-                stationsObj.put(lineArray, stationsArrayOneLine);
-                lineArray = numberLineStation;
-                stationsArrayOneLine = new JSONArray();
-            } else if (lineArray.equals(numberLineStation))
-            {
-                lineArray = numberLineStation;
-            }*/
-
-
         }
-
         return stationsObj;
     }
 
@@ -118,7 +94,6 @@ public class Main {
                 lineNumberNameColor.put("color", colorLine);
                 linesArray.add(lineNumberNameColor);
                 lineNumberNameColor = new JSONObject();
-                System.out.println(colorLine + " " + nameLine);
             }
             set.add(nameLine);
 
@@ -126,7 +101,7 @@ public class Main {
         return linesArray;
     }
 
-    private static void readJsonFile(String path){
+    private static HashMap readJsonFile(String path){
 
         HashMap<String,Integer> stationAndLines = new HashMap<>();
         try
@@ -146,9 +121,7 @@ public class Main {
         catch(Exception ex) {
             ex.printStackTrace();
         }
-        stationAndLines.keySet().forEach(number ->{
-            System.out.println("На " + number + " линии " + stationAndLines.get(number) + " станций");
-        });
+        return stationAndLines;
     }
 
     private static String getJsonFile(String dataFile)
@@ -164,6 +137,20 @@ public class Main {
         return builder.toString();
     }
 
+    private static void printCountStation(HashMap<String, Integer> map, JSONArray array){
+
+        map.keySet().forEach(number ->{
+            array.forEach(lineObject -> {
+                JSONObject lineJsonObject = (JSONObject) lineObject;
+                String numberJson = (String)lineJsonObject.get("number");
+                if(numberJson.equals(number)){
+                    String nameLine = (String)lineJsonObject.get("name");
+                    System.out.println(nameLine + " --- " + map.get(number) + " станций");
+                }
+            });
+
+        });
+    }
 }
 
 

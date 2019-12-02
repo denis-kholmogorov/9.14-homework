@@ -2,14 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c5efb405-e3cd-4032-b768-b047ca90ce21" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/StationsAndLines/Line.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/StationsAndLines/LineWithStations.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stations.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/StationsAndLines/LineWithStations.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/StationsAndLines/LineWithStations.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/stations.json" beforeDir="false" afterPath="$PROJECT_DIR$/stations.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/StationsAndLines/LineWithStations.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/StationsAndLines/LineWithStations.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,22 +97,22 @@
       <screen x="0" y="0" width="1680" height="1021" />
     </state>
     <state x="855" y="280" width="426" height="479" key="FileChooserDialogImpl/0.0.1680.1021@0.0.1680.1021" timestamp="1575278077008" />
-    <state width="1634" height="229" key="GridCell.Tab.0.bottom" timestamp="1575293027157">
+    <state width="1634" height="229" key="GridCell.Tab.0.bottom" timestamp="1575296529199">
       <screen x="0" y="0" width="1680" height="1021" />
     </state>
-    <state width="1634" height="229" key="GridCell.Tab.0.bottom/0.0.1680.1021@0.0.1680.1021" timestamp="1575293027157" />
-    <state width="1634" height="229" key="GridCell.Tab.0.center" timestamp="1575293027157">
+    <state width="1634" height="229" key="GridCell.Tab.0.bottom/0.0.1680.1021@0.0.1680.1021" timestamp="1575296529199" />
+    <state width="1634" height="229" key="GridCell.Tab.0.center" timestamp="1575296529198">
       <screen x="0" y="0" width="1680" height="1021" />
     </state>
-    <state width="1634" height="229" key="GridCell.Tab.0.center/0.0.1680.1021@0.0.1680.1021" timestamp="1575293027157" />
-    <state width="1634" height="229" key="GridCell.Tab.0.left" timestamp="1575293027156">
+    <state width="1634" height="229" key="GridCell.Tab.0.center/0.0.1680.1021@0.0.1680.1021" timestamp="1575296529198" />
+    <state width="1634" height="229" key="GridCell.Tab.0.left" timestamp="1575296529198">
       <screen x="0" y="0" width="1680" height="1021" />
     </state>
-    <state width="1634" height="229" key="GridCell.Tab.0.left/0.0.1680.1021@0.0.1680.1021" timestamp="1575293027156" />
-    <state width="1634" height="229" key="GridCell.Tab.0.right" timestamp="1575293027157">
+    <state width="1634" height="229" key="GridCell.Tab.0.left/0.0.1680.1021@0.0.1680.1021" timestamp="1575296529198" />
+    <state width="1634" height="229" key="GridCell.Tab.0.right" timestamp="1575296529199">
       <screen x="0" y="0" width="1680" height="1021" />
     </state>
-    <state width="1634" height="229" key="GridCell.Tab.0.right/0.0.1680.1021@0.0.1680.1021" timestamp="1575293027157" />
+    <state width="1634" height="229" key="GridCell.Tab.0.right/0.0.1680.1021@0.0.1680.1021" timestamp="1575296529199" />
     <state width="1634" height="333" key="GridCell.Tab.1.bottom" timestamp="1574953434412">
       <screen x="0" y="0" width="1680" height="1021" />
     </state>

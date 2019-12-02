@@ -1,8 +1,8 @@
 import StationsAndLines.Line;
 import StationsAndLines.LineWithStations;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -10,7 +10,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,13 +33,13 @@ public class Main {
 
             LineWithStations lineWithStation = createLineWithStations(elements);
 
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create(); // Таким образом получается ровнее))
             FileWriter write = new FileWriter(path);
             gson.toJson(lineWithStation, write);
             write.close();
 
-            /*ObjectMapper mapper = new ObjectMapper();                                             Попробывал с маппером, но он по другому отображает текст чем в оригинале.
-            mapper.writerWithDefaultPrettyPrinter().writeValue(new File(path), lineWithStation);*/
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writerWithDefaultPrettyPrinter().writeValue(new File(path), lineWithStation);
 
             String fileStationsJson = getJsonFile(path);
             stationsAndLines = getLinesWithStationsFromJSON(fileStationsJson);
@@ -75,14 +75,12 @@ public class Main {
                 stations.get(lineNumber).add(stationName);
                 linesList.add(new Line(lineNumber, lineName, lineColor));
             }
-            else{
-                stations.get(lineNumber).add(stationName);
-            }
+            else stations.get(lineNumber).add(stationName);
         }
         return new LineWithStations(stations, linesList);
     }
 
-    private static HashMap getLinesWithStationsFromJSON(String data){
+    private static HashMap<String, Integer> getLinesWithStationsFromJSON(String data){
 
         HashMap<String,Integer> stationAndLines = new HashMap<>();
         try
@@ -124,11 +122,8 @@ public class Main {
         return builder.toString();
     }
 
-    private static void printCountStation(HashMap<String, Integer> map){
-
-        map.keySet().forEach(name ->{
-                    System.out.println(name + " --- " + map.get(name) + " станций");
-        });
+    private static void printCountStation(HashMap<String, Integer> map) {
+        map.keySet().forEach(name -> {System.out.println(name + " --- " + map.get(name) + " станций");});
     }
 
 }

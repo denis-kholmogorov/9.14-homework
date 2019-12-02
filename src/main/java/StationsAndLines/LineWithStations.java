@@ -20,7 +20,6 @@ public class LineWithStations
         this.lines = lines;
     }
 
-
     public void addStation(HashMap<String, ArrayList<String>> stations)
     {
         this.stations = stations;

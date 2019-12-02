@@ -1,3 +1,8 @@
+import StationsAndLines.Line;
+import StationsAndLines.LineWithStations;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -5,6 +10,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,107 +22,88 @@ public class Main {
 
     public static void main(String[] args) {
 
-        JSONObject stationsObj;
-        JSONArray lineStationsArray;
-        JSONObject metropoliten = new JSONObject();
-        String path = "stations.json";
-        HashMap<String, Integer> stationAndLines;
-
         int maxBodySize = 20480000;
+        String path = "stations.json";
+        HashMap<String, Integer> stationsAndLines;
         String urlSite = "https://ru.wikipedia.org/wiki/Список_станций_Московского_метрополитена";
+
         try {
             Document doc = Jsoup.connect(urlSite).maxBodySize(maxBodySize).get();
-            Elements elements = doc.select(".standard span[title~=[а-яА-Я]+ линия$]");                          //td[data-sort-value~=\w+] Elements elements = doc.select("td[data-sort-value~=\\w+][style~=background.+]");
+            Elements elements = doc.select(".standard span[title~=[а-яА-Я]+ линия$]");
 
-            stationsObj = createStationsJSON(elements);
-            lineStationsArray = createLineStationsJSON(elements);
+            LineWithStations lineWithStation = createLineWithStations(elements);
 
-            metropoliten.put("stations", stationsObj);
-            metropoliten.put("lines", lineStationsArray);
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            FileWriter write = new FileWriter(path);
+            gson.toJson(lineWithStation, write);
+            write.close();
 
-            String text = metropoliten.toJSONString();
-            FileWriter file = new FileWriter(path);
-            file.write(text);
-            file.flush();
-            file.close();
+            /*ObjectMapper mapper = new ObjectMapper();                                             Попробывал с маппером, но он по другому отображает текст чем в оригинале.
+            mapper.writerWithDefaultPrettyPrinter().writeValue(new File(path), lineWithStation);*/
 
             String fileStationsJson = getJsonFile(path);
-            stationAndLines = readJsonFile(fileStationsJson);
-            printCountStation(stationAndLines, lineStationsArray);
+            stationsAndLines = getLinesWithStationsFromJSON(fileStationsJson);
+
+            printCountStation(stationsAndLines);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public static JSONObject createStationsJSON(Elements elements) {
 
-        JSONObject stationsObj = new JSONObject();
+    public static LineWithStations createLineWithStations(Elements elements) {
+
+        String lineName;
+        String lineNumber;
+        String lineColor;
         String stationName;
-        String numberLineStation;
-        JSONArray stationsArrayOneLine;
+        HashMap<String, ArrayList<String>> stations = new HashMap<>();
+        ArrayList<Line> linesList = new ArrayList<>();
 
         for (Element element : elements) {
-            numberLineStation = element.previousElementSibling().selectFirst(".sortkey").text();                        //numberLineStation = element.selectFirst(".sortkey").text(); можно использовать для пересадок
-            stationName = element.parent().nextElementSibling().text();                                                 //System.out.println(numberLineStation + "  " + stationName + " " + nameLine);
+            lineName = element.select("span[title~=.+]").attr("title");
+            lineNumber = element.previousElementSibling().selectFirst(".sortkey").text();
+            lineColor = element.parent().selectFirst("td").attr("style");
+            lineColor = lineColor.substring(lineColor.indexOf(":") + 1);
+            stationName = element.parent().nextElementSibling().text();
 
-            if(stationsObj.containsKey(numberLineStation)){
-                stationsArrayOneLine = (JSONArray) stationsObj.get(numberLineStation);                                  //numberLineStation = Double.parseDouble(element.attr("data-sort-value"));
-                stationsArrayOneLine.add(stationName);                                                                  // stationName = element.nextElementSibling().text();
+            if (lineNumber.indexOf("0") == 0)
+                lineNumber = lineNumber.replace("0", "");
+
+            if (!stations.containsKey(lineNumber)){
+                stations.put(lineNumber, new ArrayList<>());
+                stations.get(lineNumber).add(stationName);
+                linesList.add(new Line(lineNumber, lineName, lineColor));
             }
-            else
-            {
-                stationsArrayOneLine = new JSONArray();
-                stationsArrayOneLine.add(stationName);
-                stationsObj.put(numberLineStation,stationsArrayOneLine);
+            else{
+                stations.get(lineNumber).add(stationName);
             }
         }
-        return stationsObj;
+        return new LineWithStations(stations, linesList);
     }
 
-    public static JSONArray createLineStationsJSON(Elements elements) {
-
-        String colorLine;
-        String nameLine;
-        String numberLineStations;
-        JSONArray linesArray = new JSONArray();
-        JSONObject lineNumberNameColor = new JSONObject();
-
-        HashSet<String> set = new HashSet<>();
-        for (Element element : elements) {
-            nameLine = element.select("span[title~=.+]").attr("title");
-            numberLineStations = element.previousElementSibling().selectFirst(".sortkey").text();
-            colorLine = element.parent().selectFirst("td").attr("style");
-            colorLine = colorLine.substring(colorLine.indexOf(":") + 1);
-
-            if(!set.contains(nameLine)){
-                lineNumberNameColor.put("name", nameLine);
-                lineNumberNameColor.put("number", numberLineStations);
-                lineNumberNameColor.put("color", colorLine);
-                linesArray.add(lineNumberNameColor);
-                lineNumberNameColor = new JSONObject();
-            }
-            set.add(nameLine);
-
-        }
-        return linesArray;
-    }
-
-    private static HashMap readJsonFile(String path){
+    private static HashMap getLinesWithStationsFromJSON(String data){
 
         HashMap<String,Integer> stationAndLines = new HashMap<>();
         try
         {
             JSONParser parser = new JSONParser();
-            JSONObject jsonData = (JSONObject) parser.parse(path);
+            JSONObject jsonData = (JSONObject) parser.parse(data);
             JSONObject stationsObject = (JSONObject) jsonData.get("stations");
+            JSONArray lines = (JSONArray) jsonData.get("lines");
 
-            stationsObject.keySet().forEach(lineNumber -> {
-                String numberStation = (String) lineNumber;
-                JSONArray stationsArray = (JSONArray) stationsObject.get(lineNumber);
+            lines.forEach(line ->{
+                JSONObject lineJsonObject = (JSONObject) line;
+                String numberLineJson = (String)lineJsonObject.get("number");
+                String nameLine = (String)lineJsonObject.get("name");
 
-                stationAndLines.put(numberStation, stationsArray.size());
+                stationsObject.keySet().forEach(lineNumber -> {
+                    JSONArray stationsArray = (JSONArray)stationsObject.get(numberLineJson);
+                    stationAndLines.put(nameLine, stationsArray.size());
+                });
 
             });
+
         }
         catch(Exception ex) {
             ex.printStackTrace();
@@ -124,11 +111,11 @@ public class Main {
         return stationAndLines;
     }
 
-    private static String getJsonFile(String dataFile)
+    private static String getJsonFile(String path)
     {
         StringBuilder builder = new StringBuilder();
         try {
-            List<String> lines = Files.readAllLines(Paths.get(dataFile));
+            List<String> lines = Files.readAllLines(Paths.get(path));
             lines.forEach(line -> builder.append(line));
         }
         catch (Exception ex) {
@@ -137,20 +124,13 @@ public class Main {
         return builder.toString();
     }
 
-    private static void printCountStation(HashMap<String, Integer> map, JSONArray array){
+    private static void printCountStation(HashMap<String, Integer> map){
 
-        map.keySet().forEach(number ->{
-            array.forEach(lineObject -> {
-                JSONObject lineJsonObject = (JSONObject) lineObject;
-                String numberJson = (String)lineJsonObject.get("number");
-                if(numberJson.equals(number)){
-                    String nameLine = (String)lineJsonObject.get("name");
-                    System.out.println(nameLine + " --- " + map.get(number) + " станций");
-                }
-            });
-
+        map.keySet().forEach(name ->{
+                    System.out.println(name + " --- " + map.get(name) + " станций");
         });
     }
+
 }
 
 
